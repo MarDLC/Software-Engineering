@@ -17,13 +17,13 @@ public class GameController {
     public void selectGameMode(String type) { setup.setGameMode(type); }
 
     public void setNumberOfPlayers(int n) {
-        if (n < 3 || n > 4) throw new IllegalArgumentException("Giocatori: 3 o 4.");
+        if (n < 3 || n > 4) throw new IllegalArgumentException("Players must be 3 or 4.");
         setup.setNumberOfPlayers(n);
     }
 
     public void addPlayerName(String name) { setup.addPlayerName(name); }
 
-    /** Difficulty used for bots: "Facile" or "Medio". Null = all human. */
+    /** Difficulty used for bots: "Easy" or "Medium". Null = all human. */
     public void setBotDifficulty(String difficulty) { setup.setBotDifficulty(difficulty); }
 
     private int numHumans = 0;
@@ -43,7 +43,7 @@ public class GameController {
         for (int i = 0; i < n; i++) {
             boolean isBot = (numHumans > 0) ? (i >= numHumans) : ("Against Bots".equals(setup.getGameMode()) && i > 0);
             if (isBot) {
-                game.createBotPlayer(names.get(i), colors[i], diff != null ? diff : "Facile");
+                game.createBotPlayer(names.get(i), colors[i], diff != null ? diff : "Easy");
             } else {
                 game.createPlayer(names.get(i), colors[i]);
             }

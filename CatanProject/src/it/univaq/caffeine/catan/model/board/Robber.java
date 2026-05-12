@@ -1,7 +1,7 @@
 package it.univaq.caffeine.catan.model.board;
 
 /**
- * Robber (Brigante) — domain class representing the robber token.
+ * Robber — domain class representing the robber token.
  *
  * CO5 postcondition: one Robber instance is created and placed on the
  * Desert tile at game start. It blocks resource production from its tile.
@@ -24,6 +24,6 @@ public class Robber {
     public HexagonalTile getCurrentTile() { return currentTile; }
 
     @Override public String toString() {
-        return "Brigante su: " + (currentTile != null ? currentTile.getTerrainType() : "?");
+        return "Robber on: " + (currentTile != null ? currentTile.getTerrainType() : "?");
     }
 }

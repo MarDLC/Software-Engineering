@@ -7,12 +7,12 @@ package it.univaq.caffeine.catan.model.cards;
 public class DevelopmentCard {
 
     public enum CardType {
-        // Cavaliere (14 cards) — blue header
-        CAVALIERE,
-        // Progresso (6 cards total) — gray header
-        MONOPOLIO, SCOPERTA, COSTRUZIONE_STRADE,
-        // Punti Vittoria (5 cards) — orange header
-        MUNICIPIO, PIAZZA_DEL_MERCATO, CATTEDRALE, BIBLIOTECA, UNIVERSITA
+        // Knight (14 cards) — blue header
+        KNIGHT,
+        // Progress (6 cards total) — gray header
+        MONOPOLY, DISCOVERY, ROAD_BUILDING,
+        // Victory Points (5 cards) — orange header
+        TOWN_HALL, MARKET_SQUARE, CATHEDRAL, LIBRARY, UNIVERSITY
     }
 
     private final CardType type;
@@ -26,30 +26,30 @@ public class DevelopmentCard {
     public void play() { this.isPlayed = true; }
 
     public boolean isVictoryPoint() {
-        return type == CardType.MUNICIPIO    || type == CardType.PIAZZA_DEL_MERCATO ||
-               type == CardType.CATTEDRALE   || type == CardType.BIBLIOTECA ||
-               type == CardType.UNIVERSITA;
+        return type == CardType.TOWN_HALL || type == CardType.MARKET_SQUARE ||
+               type == CardType.CATHEDRAL || type == CardType.LIBRARY ||
+               type == CardType.UNIVERSITY;
     }
 
     public boolean isProgress() {
-        return type == CardType.MONOPOLIO || type == CardType.SCOPERTA ||
-               type == CardType.COSTRUZIONE_STRADE;
+        return type == CardType.MONOPOLY || type == CardType.DISCOVERY ||
+               type == CardType.ROAD_BUILDING;
     }
 
     public int getVictoryPoints() { return isVictoryPoint() ? 1 : 0; }
 
-    /** Italian display name (for GUI). */
+    /** English display name for the GUI. */
     public String getDisplayName() {
         return switch (type) {
-            case CAVALIERE           -> "Knight";
-            case MONOPOLIO           -> "Monopoly";
-            case SCOPERTA            -> "Year of Plenty";
-            case COSTRUZIONE_STRADE  -> "Costruzione\nStrade";
-            case MUNICIPIO           -> "Town Hall";
-            case PIAZZA_DEL_MERCATO  -> "Piazza\ndel Mercato";
-            case CATTEDRALE          -> "Cathedral";
-            case BIBLIOTECA          -> "Library";
-            case UNIVERSITA          -> "University";
+            case KNIGHT        -> "Knight";
+            case MONOPOLY      -> "Monopoly";
+            case DISCOVERY     -> "Year of Plenty";
+            case ROAD_BUILDING -> "Road\nBuilding";
+            case TOWN_HALL     -> "Town Hall";
+            case MARKET_SQUARE -> "Market\nSquare";
+            case CATHEDRAL     -> "Cathedral";
+            case LIBRARY       -> "Library";
+            case UNIVERSITY    -> "University";
         };
     }
 

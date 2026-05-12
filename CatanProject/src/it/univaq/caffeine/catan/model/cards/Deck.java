@@ -5,11 +5,11 @@ import java.util.*;
 
 /**
  * Deck — the 25-card development deck of standard Catan.
- *   14 × Cavaliere
- *    2 × Monopolio
- *    2 × Scoperta
- *    2 × Costruzione di Strade
- *    5 × Punti Vittoria (Municipio, Piazza, Cattedrale, Biblioteca, Università)
+ *   14 × Knight
+ *    2 × Monopoly
+ *    2 × Discovery
+ *    2 × Road Building
+ *    5 × Victory Points (Town Hall, Market Square, Cathedral, Library, University)
  */
 public class Deck {
     private final List<DevelopmentCard> cards = new ArrayList<>();
@@ -17,15 +17,15 @@ public class Deck {
     public Deck() { initializeDeck(); }
 
     private void initializeDeck() {
-        for (int i = 0; i < 14; i++) cards.add(new DevelopmentCard(CardType.CAVALIERE));
-        for (int i = 0; i < 2;  i++) cards.add(new DevelopmentCard(CardType.MONOPOLIO));
-        for (int i = 0; i < 2;  i++) cards.add(new DevelopmentCard(CardType.SCOPERTA));
-        for (int i = 0; i < 2;  i++) cards.add(new DevelopmentCard(CardType.COSTRUZIONE_STRADE));
-        cards.add(new DevelopmentCard(CardType.MUNICIPIO));
-        cards.add(new DevelopmentCard(CardType.PIAZZA_DEL_MERCATO));
-        cards.add(new DevelopmentCard(CardType.CATTEDRALE));
-        cards.add(new DevelopmentCard(CardType.BIBLIOTECA));
-        cards.add(new DevelopmentCard(CardType.UNIVERSITA));
+        for (int i = 0; i < 14; i++) cards.add(new DevelopmentCard(CardType.KNIGHT));
+        for (int i = 0; i < 2;  i++) cards.add(new DevelopmentCard(CardType.MONOPOLY));
+        for (int i = 0; i < 2;  i++) cards.add(new DevelopmentCard(CardType.DISCOVERY));
+        for (int i = 0; i < 2;  i++) cards.add(new DevelopmentCard(CardType.ROAD_BUILDING));
+        cards.add(new DevelopmentCard(CardType.TOWN_HALL));
+        cards.add(new DevelopmentCard(CardType.MARKET_SQUARE));
+        cards.add(new DevelopmentCard(CardType.CATHEDRAL));
+        cards.add(new DevelopmentCard(CardType.LIBRARY));
+        cards.add(new DevelopmentCard(CardType.UNIVERSITY));
     }
 
     public DevelopmentCard drawCard() {

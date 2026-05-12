@@ -31,7 +31,7 @@ public class Main {
             null, mArr, mArr[0]);
         if (mIdx < 0) return false;
         gc.selectGameMode(modes.get(mIdx));
-        boolean botMode = (mIdx == 1);   // "Contro i Bot"
+        boolean botMode = (mIdx == 1);   // "Against Bots"
 
         // ── SD3: number of players ─────────────────────────
         String[] numOpts = {"3 players total", "4 players total"};
@@ -44,8 +44,8 @@ public class Main {
         int n = nIdx + 3;
         gc.setNumberOfPlayers(n);
 
-        // ── Quanti umani? (sempre, sia Locale sia Bot) ───────
-        int maxHumans = n; // all human if "Locale"
+        // ── Human player count in both local and bot modes ───
+        int maxHumans = n; // all human if "Local"
         if (botMode) maxHumans = n - 1; // at least 1 human in bot mode
 
         // Build human count options
@@ -64,7 +64,7 @@ public class Main {
         int numHumans = hIdx + 1;
         int numBots   = n - numHumans;
 
-        // ── Difficoltà bot (se ci sono bot) ─────────────────
+        // ── Bot difficulty, when bots are present ────────────
         String difficulty = "Easy";
         if (numBots > 0) {
             gc.selectGameMode(numBots > 0 && botMode ? "Against Bot" : modes.get(mIdx));
