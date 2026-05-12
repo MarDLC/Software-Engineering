@@ -67,14 +67,14 @@ public class Main {
         // ── Difficoltà bot (se ci sono bot) ─────────────────
         String difficulty = "Easy";
         if (numBots > 0) {
-            gc.selectGameMode(numBots > 0 && botMode ? "Contro i Bot" : modes.get(mIdx));
-            String[] diffs = {"Easy (random)", "Medium (strategic)"};
+            gc.selectGameMode(numBots > 0 && botMode ? "Against Bot" : modes.get(mIdx));
+            String[] diffs = {"Easy", "Strategic"};
             int dIdx = JOptionPane.showOptionDialog(null,
                 "Bot difficulty (" + numBots + " bot" + (numBots>1?"s":"") + "):",
                 "Bot Difficulty", JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null, diffs, diffs[0]);
             if (dIdx < 0) return false;
-            difficulty = (dIdx == 1) ? "Medium" : "Easy";
+            difficulty = (dIdx == 1) ? "Strategic" : "Easy";
             gc.setBotDifficulty(difficulty);
         }
 
@@ -83,7 +83,7 @@ public class Main {
         for (int i = 0; i < n; i++) {
             if (i < numHumans) {
                 String name = JOptionPane.showInputDialog(null,
-                    "Nome del giocatore " + (i+1) + " (" + colors[i] + "):",
+                    "Player name " + (i+1) + " (" + colors[i] + "):",
                     "Player " + (i+1), JOptionPane.PLAIN_MESSAGE);
                 if (name == null || name.isBlank()) name = "Player " + (i+1);
                 gc.addPlayerName(name.trim());
@@ -99,12 +99,10 @@ public class Main {
         gc.confirmGameSetup();
 
         // Recap dialog
-        StringBuilder sb = new StringBuilder("Partita configurata!\n\n");
+        StringBuilder sb = new StringBuilder("Game ready!\n\n");
         sb.append("Mode: ").append(gc.getGame().getMode()).append("\n");
         sb.append("Players: ").append(numHumans).append(" human(s), ")
           .append(numBots).append(" bot(s) (").append(difficulty).append(")\n");
-        sb.append("Mappa: 54 intersezioni, 72 bordi, 9 porti\n");
-        sb.append("Deck: 25 development cards\n\n");
         sb.append("Turn order:\n");
         gc.getGame().getPlayers().forEach(p ->
             sb.append("  ").append(p.isBot() ? "🤖" : "👤").append(" ").append(p).append("\n"));

@@ -187,14 +187,14 @@ public class GameWindow extends JFrame {
         switch (phase) {
             case PLACE_COLONY -> txtInstruction.setText(
                 "Initial Placement — COLONY\n\n" +
-                "Clicca su un'intersezione (cerchio giallo) per posizionare la tua colonia.\n" +
-                "Regola: nessuna colonia adiacente.");
+                "Click on an intersection (yellow circle) to place your settlement.\n" +
+                "Rule: no adjacent settlements.");
             case PLACE_ROAD -> txtInstruction.setText(
                 "Initial Placement — ROAD\n\n" +
                 "Click on an edge (yellow line) adjacent to the settlement you just placed.");
             case DONE -> txtInstruction.setText(
                 "✔ Placement complete!\n\nState: " +
-                gc.getGame().getState() + "\nPronta per UC 3.0.");
+                gc.getGame().getState());
         }
 
         // Resources of current player
