@@ -1,9 +1,10 @@
 package it.univaq.caffeine.catan.view;
 
 import it.univaq.caffeine.catan.controller.GameController;
-import it.univaq.caffeine.catan.enums.ResourceType;
-import it.univaq.caffeine.catan.model.*;
-import it.univaq.caffeine.catan.model.Robber;
+import it.univaq.caffeine.catan.model.BotStrategy;
+import it.univaq.caffeine.catan.model.board.*;
+import it.univaq.caffeine.catan.model.enums.ResourceType;
+import it.univaq.caffeine.catan.model.player.*;
 
 import javax.swing.*;
 import java.awt.*;

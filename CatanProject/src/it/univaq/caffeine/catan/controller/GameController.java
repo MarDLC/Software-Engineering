@@ -1,7 +1,7 @@
 package it.univaq.caffeine.catan.controller;
 
 import it.univaq.caffeine.catan.model.Game;
-import it.univaq.caffeine.catan.setup.GameSetup;
+import it.univaq.caffeine.catan.model.GameSetup;
 import java.util.List;
 
 public class GameController {

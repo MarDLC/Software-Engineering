@@ -1,6 +1,10 @@
 package it.univaq.caffeine.catan.model;
 
-import it.univaq.caffeine.catan.enums.ResourceType;
+import it.univaq.caffeine.catan.model.board.*;
+import it.univaq.caffeine.catan.model.cards.Deck;
+import it.univaq.caffeine.catan.model.enums.ResourceType;
+import it.univaq.caffeine.catan.model.player.*;
+import it.univaq.caffeine.catan.model.rules.GameRules;
 import java.util.*;
 
 public class Game {
@@ -153,7 +157,7 @@ public class Game {
     /** SD5 1.12: creates Robber on Desert tile (CO5 postcondition). */
     public Robber createRobber() {
         HexagonalTile desert = map.getHexagons().stream()
-            .filter(t -> t.getTerrainType() == it.univaq.caffeine.catan.enums.ResourceType.DESERT)
+            .filter(t -> t.getTerrainType() == ResourceType.DESERT)
             .findFirst().orElse(map.getHexagons().get(0));
         robber = new Robber(desert);
         return robber;

@@ -1,6 +1,8 @@
 package it.univaq.caffeine.catan.model;
 
-import it.univaq.caffeine.catan.enums.ResourceType;
+import it.univaq.caffeine.catan.model.cards.ResourceCard;
+import it.univaq.caffeine.catan.model.enums.ResourceType;
+import it.univaq.caffeine.catan.model.player.Player;
 import java.util.HashMap;
 import java.util.Map;
 

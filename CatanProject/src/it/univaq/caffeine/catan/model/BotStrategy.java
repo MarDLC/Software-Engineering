@@ -1,5 +1,7 @@
 package it.univaq.caffeine.catan.model;
 
+import it.univaq.caffeine.catan.model.board.*;
+import it.univaq.caffeine.catan.model.player.Colony;
 import java.util.*;
 import java.util.stream.Collectors;
 

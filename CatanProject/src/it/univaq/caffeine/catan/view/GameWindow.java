@@ -1,9 +1,11 @@
 package it.univaq.caffeine.catan.view;
 
 import it.univaq.caffeine.catan.controller.GameController;
-import it.univaq.caffeine.catan.enums.ResourceType;
-import it.univaq.caffeine.catan.model.*;
-import it.univaq.caffeine.catan.model.DevelopmentCard.CardType;
+import it.univaq.caffeine.catan.model.Bank;
+import it.univaq.caffeine.catan.model.cards.Deck;
+import it.univaq.caffeine.catan.model.cards.DevelopmentCard;
+import it.univaq.caffeine.catan.model.enums.ResourceType;
+import it.univaq.caffeine.catan.model.player.Player;
 
 import javax.swing.*;
 import javax.swing.border.*;
