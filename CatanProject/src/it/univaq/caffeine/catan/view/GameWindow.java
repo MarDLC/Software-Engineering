@@ -236,7 +236,7 @@ public class GameWindow extends JFrame {
                 (int)cur.getResources().stream().filter(rc->rc.getType()==rt).count();
             JPanel cell = new JPanel();
             cell.setLayout(new BoxLayout(cell, BoxLayout.Y_AXIS));
-            cell.setBackground(CatanBoardPanel.TERRAIN.get(types[i]).darker());
+            cell.setBackground(CatanBoardPanel.terrainColor(types[i]).darker());
             cell.setBorder(new LineBorder(Color.BLACK, 1, true));
 
             JLabel ico = new JLabel(icons[i], SwingConstants.CENTER);
@@ -340,7 +340,7 @@ public class GameWindow extends JFrame {
                 int qty = bank.getResourceStock().getOrDefault(types[i],0);
                 JPanel cell = new JPanel();
                 cell.setLayout(new BoxLayout(cell, BoxLayout.Y_AXIS));
-                cell.setBackground(CatanBoardPanel.TERRAIN.get(types[i]));
+                cell.setBackground(CatanBoardPanel.terrainColor(types[i]).darker());
                 cell.setBorder(new LineBorder(Color.BLACK,1,true));
                 JLabel n = new JLabel(names[i], SwingConstants.CENTER);
                 n.setFont(new Font("SansSerif",Font.PLAIN,9));

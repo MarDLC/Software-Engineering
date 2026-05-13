@@ -17,23 +17,52 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
     private static final int   INTER_RADIUS    = 10;
     private static final int   EDGE_CLICK_DIST = 14;
     private static final Color OCEAN           = new Color(59, 120, 180);
-    private static final Color HEX_BORDER      = new Color(55, 38, 18);
+    private static final Color HEX_BORDER      = new Color(255, 255, 255);
     private static final Color TOKEN_BG        = new Color(255, 248, 220);
 
-    static final java.util.Map<ResourceType, Color> TERRAIN = new EnumMap<>(ResourceType.class);
+    // ── Tile images ───────────────────────────────────────────
+    private static final java.util.Map<ResourceType, java.awt.image.BufferedImage>
+            TERRAIN_IMAGES = new EnumMap<>(ResourceType.class);
+
+    private static final String TILES_PATH = "/it/univaq/caffeine/catan/tiles/";
+
     static {
-        TERRAIN.put(ResourceType.WOOD,   new Color(34,  120,  34));
-        TERRAIN.put(ResourceType.SHEEP,  new Color(60, 175, 148));
-        TERRAIN.put(ResourceType.WHEAT,  new Color(240, 200,  20));
-        TERRAIN.put(ResourceType.BRICK,  new Color(185,  65,  30));
-        TERRAIN.put(ResourceType.ORE,    new Color(120, 120, 145));
-        TERRAIN.put(ResourceType.DESERT, new Color(210, 190, 140));
+        loadTile(ResourceType.SHEEP,  TILES_PATH + "pasture.png");
+        loadTile(ResourceType.WOOD,   TILES_PATH + "forest.png");
+        loadTile(ResourceType.WHEAT,  TILES_PATH + "fields.png");
+        loadTile(ResourceType.ORE,    TILES_PATH + "mountains.png");
+        loadTile(ResourceType.BRICK,  TILES_PATH + "hills.png");
+        loadTile(ResourceType.DESERT, TILES_PATH + "desert.png");
     }
 
-    static final String[] PC_STR = {"Red","Blue","Green","Brown"};
+    private static void loadTile(ResourceType type, String path) {
+        try (var stream = CatanBoardPanel.class.getResourceAsStream(path)) {
+            if (stream != null)
+                TERRAIN_IMAGES.put(type, javax.imageio.ImageIO.read(stream));
+            else
+                System.err.println("Tile image not found: " + path);
+        } catch (Exception e) {
+            System.err.println("Error loading tile: " + path + " — " + e.getMessage());
+        }
+    }
+
+    /** Fallback color used when a tile image is not available. Also used for ports. */
+    public static Color terrainColor(ResourceType type) {
+        return switch (type) {
+            case WOOD   -> new Color(34,  120,  34);
+            case SHEEP  -> new Color(60,  175, 148);
+            case WHEAT  -> new Color(240, 200,  20);
+            case BRICK  -> new Color(185,  65,  30);
+            case ORE    -> new Color(120, 120, 145);
+            case DESERT -> new Color(210, 190, 140);
+        };
+    }
+
+    // ── Player colors ─────────────────────────────────────────
+    static final String[] PC_STR = {"Red","Blue","Green","Yellow"};
     static final Color[]  PC_COL = {
-        new Color(220,50,50), new Color(50,110,220),
-        new Color(40,175,40),  new Color(101, 55, 0)
+            new Color(220,50,50), new Color(50,110,220),
+            new Color(40,175,40), new Color(255, 200, 0)
     };
 
     private final GameController gc;
@@ -57,7 +86,7 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
         super.paintComponent(g);
         if (gc.getGame() == null) return;
         Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,      RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         GameMap map = gc.getGame().getMap();
         drawHexagons(g2, map);
@@ -71,38 +100,64 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
     private void drawHexagons(Graphics2D g2, GameMap map) {
         for (HexagonalTile tile : map.getHexagons()) {
             Polygon hex = hexPolygon(tile.getCenterX(), tile.getCenterY());
-            g2.setColor(TERRAIN.get(tile.getTerrainType()));
-            g2.fillPolygon(hex);
+
+            java.awt.image.BufferedImage img = TERRAIN_IMAGES.get(tile.getTerrainType());
+            if (img != null) {
+                // Disegna l'immagine ritagliata alla forma dell'esagono
+                Shape oldClip = g2.getClip();
+// Fill base con colore di fallback — evita gap trasparenti ai bordi
+                g2.setColor(terrainColor(tile.getTerrainType()));
+                g2.fillPolygon(hex);
+// Immagine più grande così la cornice in legno viene clippata via
+                g2.setClip(hex);
+                int cx   = (int) tile.getCenterX();
+                int cy   = (int) tile.getCenterY();
+                int size = (int) (GameMap.HEX_SIZE * 2.6);
+                g2.drawImage(img, cx - size/2, cy - size/2, size, size, null);
+                g2.setClip(oldClip);
+            } else {
+                // Fallback al colore solido se l'immagine non è disponibile
+                g2.setColor(terrainColor(tile.getTerrainType()));
+                g2.fillPolygon(hex);
+            }
+
+            // Bordo esagono sempre sopra
             g2.setColor(HEX_BORDER);
-            g2.setStroke(new BasicStroke(2f));
+            g2.setStroke(new BasicStroke(3f));
             g2.drawPolygon(hex);
 
+            // Token numerico
             if (tile.getToken() != null) {
-                int n = tile.getToken().getNumber();
-                int cx = (int)tile.getCenterX(), cy = (int)tile.getCenterY();
-                g2.setColor(TOKEN_BG);     g2.fillOval(cx-17,cy-17,34,34);
-                g2.setColor(Color.GRAY);   g2.setStroke(new BasicStroke(1f));
-                g2.drawOval(cx-17,cy-17,34,34);
+                int n  = tile.getToken().getNumber();
+                int cx = (int) tile.getCenterX();
+                int cy = (int) tile.getCenterY();
+                g2.setColor(TOKEN_BG);
+                g2.fillOval(cx-17, cy-17, 34, 34);
+                g2.setColor(Color.GRAY);
+                g2.setStroke(new BasicStroke(1f));
+                g2.drawOval(cx-17, cy-17, 34, 34);
                 g2.setColor((n==6||n==8) ? new Color(200,20,20) : Color.BLACK);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 14));
                 String s = String.valueOf(n);
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(s, cx - fm.stringWidth(s)/2, cy + fm.getAscent()/2 - 2);
-                // Probability dots under number
+                // Pallini probabilità
                 int dots = 6 - Math.abs(7-n);
-                for (int d=0;d<dots;d++) {
+                for (int d = 0; d < dots; d++) {
                     int dx = cx - (dots-1)*3 + d*6;
                     g2.fillOval(dx-2, cy+11, 4, 4);
                 }
             } else {
-                // Desert label
-                g2.setColor(new Color(120,90,50));
+                // Label Desert
+                g2.setColor(new Color(120, 90, 50));
                 g2.setFont(new Font("SansSerif", Font.BOLD|Font.ITALIC, 11));
                 FontMetrics fm = g2.getFontMetrics();
                 String s = "Desert";
-                g2.drawString(s, (int)tile.getCenterX()-fm.stringWidth(s)/2, (int)tile.getCenterY()-8);
+                g2.drawString(s, (int)tile.getCenterX() - fm.stringWidth(s)/2,
+                        (int)tile.getCenterY() - 8);
             }
-            // Draw Robber if on this tile
+
+            // Brigante
             Robber robber = gc.getGame().getRobber();
             if (robber != null && robber.getCurrentTile() == tile) {
                 drawRobber(g2, (int)tile.getCenterX(), (int)tile.getCenterY());
@@ -113,13 +168,14 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
     // ── Ports ─────────────────────────────────────────────────
     private void drawPorts(Graphics2D g2, GameMap map) {
         for (Port port : map.getPorts()) {
-            int px = (int)port.getDisplayX(), py = (int)port.getDisplayY();
+            int px = (int) port.getDisplayX();
+            int py = (int) port.getDisplayY();
             int w = 46, h = 36;
 
-            // Port background — resource color or sandy for generic
+            // Colore sfondo porto: usa terrainColor() per i specifici, sabbia per generici
             Color bg = port.isGeneric()
-                ? new Color(240, 220, 150)
-                : TERRAIN.get(port.getResourceType()).brighter();
+                    ? new Color(240, 220, 150)
+                    : terrainColor(port.getResourceType()).brighter();
             Color border = port.isGeneric() ? new Color(160,130,50) : HEX_BORDER;
 
             g2.setColor(bg);
@@ -128,18 +184,16 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
             g2.setStroke(new BasicStroke(1.8f));
             g2.drawRoundRect(px-w/2, py-h/2, w, h, 8, 8);
 
-            // Exchange rate text
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("SansSerif", Font.BOLD, 12));
             String rate = port.getExchangeRate() + ":1";
             FontMetrics fm = g2.getFontMetrics();
             g2.drawString(rate, px - fm.stringWidth(rate)/2, py - 1);
 
-            // Resource abbreviation or "ANY"
             g2.setFont(new Font("SansSerif", Font.PLAIN, 9));
             String sub = port.isGeneric()
-                ? "any"
-                : port.getResourceType().name().substring(0,3);
+                    ? "any"
+                    : port.getResourceType().name().substring(0, 3);
             fm = g2.getFontMetrics();
             g2.drawString(sub, px - fm.stringWidth(sub)/2, py + 11);
         }
@@ -151,7 +205,7 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
             Intersection a = e.getEndpoints()[0], b = e.getEndpoints()[1];
             if (e.getStreet() != null) {
                 g2.setColor(playerColor(e.getStreet().getColor()));
-                g2.setStroke(new BasicStroke(7f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.setStroke(new BasicStroke(10f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g2.drawLine((int)a.getX(),(int)a.getY(),(int)b.getX(),(int)b.getY());
                 g2.setColor(new Color(255,255,255,80));
                 g2.setStroke(new BasicStroke(2f));
@@ -175,9 +229,9 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
             if (inter.getBuilding()!=null) {
                 g2.setColor(playerColor(inter.getBuilding().getColor()));
                 g2.fillOval(x-r,y-r,2*r,2*r);
-                g2.setColor(Color.WHITE); g2.setStroke(new BasicStroke(2f));
+                g2.setColor(Color.WHITE);
+                g2.setStroke(new BasicStroke(2f));
                 g2.drawOval(x-r,y-r,2*r,2*r);
-                // Colony icon
                 int[] hx = {x-5,x,x+5,x+5,x-5};
                 int[] hy = {y+2,y-5,y+2,y+5,y+5};
                 g2.setColor(new Color(255,255,255,180));
@@ -185,7 +239,8 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
             } else if (phase==Phase.PLACE_COLONY && inter==hoveredInter) {
                 g2.setColor(new Color(255,230,0,220));
                 g2.fillOval(x-r,y-r,2*r,2*r);
-                g2.setColor(Color.ORANGE); g2.setStroke(new BasicStroke(2f));
+                g2.setColor(Color.ORANGE);
+                g2.setStroke(new BasicStroke(2f));
                 g2.drawOval(x-r,y-r,2*r,2*r);
             } else {
                 g2.setColor(new Color(200,200,200,80));
@@ -245,7 +300,7 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
                         JOptionPane.showMessageDialog(this, buildInitialResourceSummary(),
                                 "Initial Resources Distributed", JOptionPane.INFORMATION_MESSAGE);
                         JOptionPane.showMessageDialog(this,
-                                "Placement complete!\nInitial resources have been assigned. \nThe game begins!",
+                                "Placement complete!\nInitial resources have been assigned.\nThe game begins!",
                                 "Placement Complete", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         phase=Phase.PLACE_COLONY; parent.updateStatus(); repaint();
@@ -288,7 +343,8 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
                     phase=Phase.DONE; parent.updateStatus(); repaint();
                     JOptionPane.showMessageDialog(this, buildInitialResourceSummary(),
                             "Initial Resources Distributed", JOptionPane.INFORMATION_MESSAGE);
-                    JOptionPane.showMessageDialog(this,"Placement complete!\nThe game begins!",
+                    JOptionPane.showMessageDialog(this,
+                            "Placement complete!\nInitial resources have been assigned.\nThe game begins!",
                             "Placement Complete", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     phase=Phase.PLACE_COLONY; parent.updateStatus(); repaint();
@@ -300,7 +356,7 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
         }
     }
 
-    /** Builds a summary of resources distributed to each player. */
+    // ── Resource summary ──────────────────────────────────────
     private JScrollPane buildInitialResourceSummary() {
         StringBuilder sb = new StringBuilder();
         sb.append("Resources distributed from each player's settlement:\n\n");
@@ -310,9 +366,8 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
                     .append(" (").append(p.getColor()).append("):\n");
 
             Map<ResourceType, Integer> counts = new LinkedHashMap<>();
-            for (ResourceCard rc : p.getResources()) {
+            for (ResourceCard rc : p.getResources())
                 counts.merge(rc.getType(), 1, Integer::sum);
-            }
 
             if (counts.isEmpty()) {
                 sb.append("    No resources (adjacent tiles are desert)\n");
@@ -332,34 +387,30 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
         return scroll;
     }
 
-    /** Shows an error dialog that renders HTML if the message contains HTML tags. */
+    // ── Error dialog ──────────────────────────────────────────
     private void showError(String msg) {
         Object display = msg.startsWith("<html>") ? new JLabel(msg) : msg;
         JOptionPane.showMessageDialog(this, display,
-            "Invalid Placement", JOptionPane.WARNING_MESSAGE);
+                "Invalid Placement", JOptionPane.WARNING_MESSAGE);
+    }
+
+    // ── Robber ────────────────────────────────────────────────
+    private void drawRobber(Graphics2D g2, int cx, int cy) {
+        int r = 16;
+        g2.setColor(new Color(20, 20, 20, 220));
+        g2.fillOval(cx-r, cy+4, 2*r, r+6);
+        g2.fillOval(cx-r/2, cy-r, r, r+4);
+        g2.setColor(new Color(80, 0, 0, 200));
+        g2.fillArc(cx-r/2, cy-r, r, r, 0, 180);
+        g2.setColor(new Color(255, 80, 80));
+        g2.fillOval(cx-6, cy-r+5, 4, 4);
+        g2.fillOval(cx+2, cy-r+5, 4, 4);
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("SansSerif", Font.BOLD, 8));
+        g2.drawString("Rob.", cx-9, cy+14);
     }
 
     // ── Utils ─────────────────────────────────────────────────
-    /** Draws the Robber token centered at (cx, cy). */
-    private void drawRobber(Graphics2D g2, int cx, int cy) {
-        // Dark cloak shape
-        int r = 16;
-        g2.setColor(new Color(20, 20, 20, 220));
-        g2.fillOval(cx - r, cy + 4, 2*r, r + 6);      // base/body
-        g2.fillOval(cx - r/2, cy - r, r, r + 4);      // head
-        // Hood highlight
-        g2.setColor(new Color(80, 0, 0, 200));
-        g2.fillArc(cx - r/2, cy - r, r, r, 0, 180);
-        // White eyes
-        g2.setColor(new Color(255, 80, 80));
-        g2.fillOval(cx - 6, cy - r + 5, 4, 4);
-        g2.fillOval(cx + 2, cy - r + 5, 4, 4);
-        // Label
-        g2.setColor(Color.WHITE);
-        g2.setFont(new Font("SansSerif", Font.BOLD, 8));
-        g2.drawString("Rob.", cx - 9, cy + 14);
-    }
-
     private Polygon hexPolygon(double cx, double cy) {
         int[] xs=new int[6], ys=new int[6];
         for (int i=0;i<6;i++) {
@@ -369,9 +420,14 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
         }
         return new Polygon(xs,ys,6);
     }
-    private static double dist(double ax,double ay,double bx,double by) { return Math.hypot(ax-bx,ay-by); }
+
+    private static double dist(double ax,double ay,double bx,double by) {
+        return Math.hypot(ax-bx, ay-by);
+    }
+
     public static Color playerColor(String n) {
-        for (int i=0;i<PC_STR.length;i++) if(PC_STR[i].equalsIgnoreCase(n)) return PC_COL[i];
+        for (int i=0;i<PC_STR.length;i++)
+            if (PC_STR[i].equalsIgnoreCase(n)) return PC_COL[i];
         return Color.GRAY;
     }
 

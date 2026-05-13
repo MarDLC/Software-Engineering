@@ -107,7 +107,8 @@ public class Main {
                 case 4: {
                     names.clear();
                     int      numHumans = hIdx + 1;
-                    String[] colors    = {"Red", "Blue", "Green", "Brown"};
+                    String[] colors    = {"Red", "Blue", "Green", "Yellow" +
+                            ""};
                     boolean  back      = false;
                     boolean  cancelled = false;
 
