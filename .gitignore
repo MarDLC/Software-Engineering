@@ -1,0 +1,17 @@
+# Compiled files
+out/
+target/
+*.class
+
+# IDE settings
+.idea/
+*.iml
+*.iws
+
+# macOS
+.DS_Store
+
+# Build artifacts
+*.jar
+*.war
+
