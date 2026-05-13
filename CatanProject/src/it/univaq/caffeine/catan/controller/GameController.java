@@ -38,7 +38,7 @@ public class GameController {
         game.setMode(setup.getGameMode());
         game.setMaxPlayers(n);
 
-        String[] colors = {"Red","Blue","Green","Yellow"};
+        String[] colors = {"Red","Blue","Green","Brown"};
 
         for (int i = 0; i < n; i++) {
             boolean isBot = (numHumans > 0) ? (i >= numHumans) : ("Against Bots".equals(setup.getGameMode()) && i > 0);

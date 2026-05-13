@@ -5,6 +5,7 @@ import it.univaq.caffeine.catan.model.BotStrategy;
 import it.univaq.caffeine.catan.model.board.*;
 import it.univaq.caffeine.catan.model.enums.ResourceType;
 import it.univaq.caffeine.catan.model.player.*;
+import it.univaq.caffeine.catan.model.cards.ResourceCard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,17 +23,17 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
     static final java.util.Map<ResourceType, Color> TERRAIN = new EnumMap<>(ResourceType.class);
     static {
         TERRAIN.put(ResourceType.WOOD,   new Color(34,  120,  34));
-        TERRAIN.put(ResourceType.SHEEP,  new Color(120, 210,  80));
+        TERRAIN.put(ResourceType.SHEEP,  new Color(60, 175, 148));
         TERRAIN.put(ResourceType.WHEAT,  new Color(240, 200,  20));
         TERRAIN.put(ResourceType.BRICK,  new Color(185,  65,  30));
         TERRAIN.put(ResourceType.ORE,    new Color(120, 120, 145));
         TERRAIN.put(ResourceType.DESERT, new Color(210, 190, 140));
     }
 
-    static final String[] PC_STR = {"Red","Blue","Green","Yellow"};
+    static final String[] PC_STR = {"Red","Blue","Green","Brown"};
     static final Color[]  PC_COL = {
         new Color(220,50,50), new Color(50,110,220),
-        new Color(40,175,40), new Color(220,185,0)
+        new Color(40,175,40),  new Color(101, 55, 0)
     };
 
     private final GameController gc;
@@ -241,9 +242,11 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
                     gc.placeRoad(chosen.getId());
                     if ("ActiveGame".equals(gc.getGame().getState())) {
                         phase=Phase.DONE; parent.updateStatus(); repaint();
+                        JOptionPane.showMessageDialog(this, buildInitialResourceSummary(),
+                                "Initial Resources Distributed", JOptionPane.INFORMATION_MESSAGE);
                         JOptionPane.showMessageDialog(this,
-                            "Placement complete!\nThe game begins!",
-                            "Placement Complete", JOptionPane.INFORMATION_MESSAGE);
+                                "Placement complete!\nInitial resources have been assigned. \nThe game begins!",
+                                "Placement Complete", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         phase=Phase.PLACE_COLONY; parent.updateStatus(); repaint();
                         checkAndScheduleBotMove();
@@ -283,8 +286,10 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
                 gc.placeRoad(hoveredEdge.getId());
                 if ("ActiveGame".equals(gc.getGame().getState())) {
                     phase=Phase.DONE; parent.updateStatus(); repaint();
+                    JOptionPane.showMessageDialog(this, buildInitialResourceSummary(),
+                            "Initial Resources Distributed", JOptionPane.INFORMATION_MESSAGE);
                     JOptionPane.showMessageDialog(this,"Placement complete!\nThe game begins!",
-                        "Placement Complete", JOptionPane.INFORMATION_MESSAGE);
+                            "Placement Complete", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     phase=Phase.PLACE_COLONY; parent.updateStatus(); repaint();
                     checkAndScheduleBotMove();
@@ -293,6 +298,38 @@ public class CatanBoardPanel extends JPanel implements MouseMotionListener, Mous
                 showError(ex.getMessage());
             }
         }
+    }
+
+    /** Builds a summary of resources distributed to each player. */
+    private JScrollPane buildInitialResourceSummary() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Resources distributed from each player's settlement:\n\n");
+
+        for (Player p : gc.getGame().getPlayers()) {
+            sb.append("  ").append(p.getName())
+                    .append(" (").append(p.getColor()).append("):\n");
+
+            Map<ResourceType, Integer> counts = new LinkedHashMap<>();
+            for (ResourceCard rc : p.getResources()) {
+                counts.merge(rc.getType(), 1, Integer::sum);
+            }
+
+            if (counts.isEmpty()) {
+                sb.append("    No resources (adjacent tiles are desert)\n");
+            } else {
+                counts.forEach((type, count) ->
+                        sb.append("    ").append(type.name())
+                                .append(": \u00d7").append(count).append("\n"));
+            }
+            sb.append("\n");
+        }
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setPreferredSize(new Dimension(350, 200));
+        return scroll;
     }
 
     /** Shows an error dialog that renders HTML if the message contains HTML tags. */

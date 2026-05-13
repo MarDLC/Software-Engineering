@@ -122,15 +122,14 @@ public class Game {
 
     public void distributeInitialResources() {
         for (Player p : players) {
-            List<Building> cols = p.getBuildings().stream()
-                .filter(b -> b instanceof Colony).toList();
-            if (cols.size() >= 2) {
-                Colony second = (Colony) cols.get(cols.size() - 1);
-                Intersection inter = second.getIntersection();
-                if (inter != null) {
-                    for (HexagonalTile tile : inter.getAdjacentTiles()) {
-                        if (tile.getTerrainType() != ResourceType.DESERT)
-                            bank.transferResourcesTo(p, tile.getTerrainType(), 1);
+            for (Building b : p.getBuildings()) {
+                if (b instanceof Colony colony) {
+                    Intersection inter = colony.getIntersection();
+                    if (inter != null) {
+                        for (HexagonalTile tile : inter.getAdjacentTiles()) {
+                            if (tile.getTerrainType() != ResourceType.DESERT)
+                                bank.transferResourcesTo(p, tile.getTerrainType(), 1);
+                        }
                     }
                 }
             }

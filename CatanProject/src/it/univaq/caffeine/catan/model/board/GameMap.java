@@ -38,11 +38,11 @@ public class GameMap {
     private static final Object[][] PORT_DEFS = {
         {null,              3, 285.0, 150.0},   // 1. Generic   — top-left
         {ResourceType.ORE,  2, 483.0, 148.0},   // 2. Ore 2:1   — top-right
-        {null,              3, 631.0, 278.0},   // 3. Generic   — right-top
+        {null,              3, 621.0, 278.0},   // 3. Generic   — right-top
         {ResourceType.WHEAT,2, 667.0, 415.0},   // 4. Wheat 2:1 — right
-        {ResourceType.WOOD, 2, 583.0, 555.0},   // 5. Wood 2:1 — bottom-right
-        {null,              3, 380.0, 633.0},   // 6. Generic   — bottom
-        {ResourceType.BRICK,2, 175.0, 555.0},   // 7. Brick 2:1 — bottom-left
+        {ResourceType.WOOD, 2, 583.0, 560.0},   // 5. Wood 2:1 — bottom-right
+        {null,              3, 380.0, 680.0},   // 6. Generic   — bottom
+        {ResourceType.BRICK,2, 175.0, 560.0},   // 7. Brick 2:1 — bottom-left
         {ResourceType.SHEEP,2,  90.0, 415.0},   // 8. Sheep 2:1  — left
         {null,              3, 135.0, 278.0},   // 9. Generic   — top-left
     };
